@@ -6,7 +6,7 @@
             dark
         >
             <div class="d-flex align-center">
-                 <h1 class="text-h5 mb-0">LaserJobs - {{this.$route.params.db}}</h1>
+                <h1 class="text-h5 mb-0">LaserJobs - {{ this.$route.params.db }}</h1>
             </div>
             
             <v-spacer></v-spacer>
@@ -37,9 +37,6 @@
                                 label="Filtra"
                             ></v-text-field>
                         </v-col>
-                        <v-col class="flex-shrink-1 flex-grow-0">
-                            <v-btn @click="newjob()" color="green">Aggiungi</v-btn>
-                        </v-col>
                     </v-row>
                 </v-toolbar>
             </template>
@@ -48,69 +45,46 @@
                     <template v-slot:default>
                         <thead>
                         <tr class="caption text-uppercase">
-                            <th scope="col" width="30px">
-                                <bt-sort v-model="sort" label="Sort" field="doc.ordinamento"/>
+                            <th scope="col">
+                                Codice
                             </th>
                             <th scope="col">
-                                <bt-sort v-model="sort" label="Codice" field="doc.codice"/>
+                                Descrizione
                             </th>
                             <th scope="col">
-                                <bt-sort v-model="sort" label="Descrizione" field="doc.descrizione"/>
+                                Fatto
                             </th>
-                            <th scope="col">
-                            
-                            </th>
-                            <th scope="col" width="1%">
-                            
+                            <th scope="col" width="1%" colspan="2">
+                                Aggiornato
                             </th>
                         
                         </tr>
                         </thead>
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id">
-                            <td class="sort-handle text-center" width="30px">
-                                <v-icon>mdi-drag</v-icon>
-                            </td>
                             <td class="mr-0 pr-0">
-                                <v-text-field
-                                    v-model="item.doc.codice"
-                                    dense
-                                    flat
-                                    hide-details
-                                    label="Codice"
-                                    outlined
-                                    placeholder="Codice"
-                                    single-line
-                                    type="text"
-                                    @change="save(item)"
-                                ></v-text-field>
-                            
+                                {{ item.doc.codice }}
                             </td>
                             
                             <td>
-                                <v-text-field
-                                    v-model="item.doc.descrizione"
+                                {{ item.doc.descrizione }}
+                            
+                            </td>
+                            <td width="1%">
+                                <v-checkbox
+                                    v-model="item.doc.done"
                                     dense
                                     flat
                                     hide-details
-                                    label="Descrizione"
                                     outlined
-                                    placeholder="Descrizione"
+                                    placeholder="Fatto"
                                     single-line
                                     type="text"
                                     @change="save(item)"
-                                ></v-text-field>
-                            </td>
-                            <td>
+                                ></v-checkbox>
+                            <td width="1%" class="text-no-wrap">
                                 {{ item.doc.date | moment('LLL') }}
                             </td>
-                            
-                            <td width="1%">
-                                <v-btn @click="deleteJob(item)" color="orange">
-                                    <v-icon>mdi-delete</v-icon>
-                                </v-btn>
-                            </td>
-                        
                         </tr>
                         </tbody>
                     </template>
@@ -125,14 +99,11 @@
 
 <script>
     import PouchDB from "pouchdb";
-    import btSort from "@/components/include/BtSort";
     import _ from "lodash";
     import Sortable from 'sortablejs';
     
     export default {
-        components: {
-            btSort
-        },
+        components: {},
         name: "LaserJobs",
         data() {
             return {
@@ -149,7 +120,7 @@
             }
         },
         created() {
-            this.db = new PouchDB(`${this.$dbUrl}laserjobs.${this.$route.params.db}`)
+            this.db = new PouchDB(`${this.$dbUrl}laserjobs_${this.$route.params.db}`)
         },
         mounted() {
             console.log("Ciaone");
@@ -185,7 +156,6 @@
                 // handle errors
                 console.log(err);
             });
-            app.sortable_timer = setInterval(this.setupSortable, 50)
         },
         destroyed() {
             clearInterval(this.sortable_timer);
@@ -194,6 +164,11 @@
             save: _.debounce(
                 function (item) {
                     item.doc.date = new Date();
+                    if (item.doc.done === true) {
+                        item.doc.ordinamento = 1000 + item.doc.ordinamento;
+                    } else {
+                        item.doc.ordinamento = item.doc.ordinamento - 1000;
+                    }
                     this.db.put(item.doc);
                 },
             ),

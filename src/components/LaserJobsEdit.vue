@@ -1,12 +1,12 @@
 <template>
     <div>
-                <v-app-bar
+        <v-app-bar
             app
             color="primary"
             dark
         >
             <div class="d-flex align-center">
-                <h1 class="text-h5 mb-0">LaserJobs Edit - {{this.$route.params.db}}</h1>
+                <h1 class="text-h5 mb-0">LaserJobs - Edit - {{ this.$route.params.db }}</h1>
             </div>
             
             <v-spacer></v-spacer>
@@ -58,9 +58,9 @@
                                 <bt-sort v-model="sort" label="Descrizione" field="doc.descrizione"/>
                             </th>
                             <th scope="col">
-                            
+                                <bt-sort v-model="sort" label="Fatto" field="doc.done"/>
                             </th>
-                            <th scope="col" width="1%">
+                            <th scope="col" width="1%" colspan="2">
                             
                             </th>
                         
@@ -101,7 +101,20 @@
                                     @change="save(item)"
                                 ></v-text-field>
                             </td>
-                            <td>
+                            <td width="1%">
+                                <v-checkbox
+                                    v-model="item.doc.done"
+                                    dense
+                                    flat
+                                    hide-details
+                                    outlined
+                                    placeholder="Fatto"
+                                    single-line
+                                    type="text"
+                                    @change="save(item)"
+                                ></v-checkbox>
+                            </td>
+                            <td width="1%" class="text-no-wrap">
                                 {{ item.doc.date | moment('LLL') }}
                             </td>
                             
@@ -149,7 +162,7 @@
             }
         },
         created() {
-            this.db = new PouchDB(`${this.$dbUrl}laserjobs.${this.$route.params.db}`)
+            this.db = new PouchDB(`${this.$dbUrl}laserjobs_${this.$route.params.db}`)
         },
         mounted() {
             console.log("Ciaone");
@@ -194,6 +207,11 @@
             save: _.debounce(
                 function (item) {
                     item.doc.date = new Date();
+                    if (item.doc.done === true) {
+                        item.doc.ordinamento = 1000 + item.doc.ordinamento;
+                    } else {
+                        item.doc.ordinamento = item.doc.ordinamento - 1000;
+                    }
                     this.db.put(item.doc);
                 },
             ),
@@ -218,7 +236,6 @@
                     job.doc.ordinamento = index;
                     this.db.put(job.doc);
                 })
-                // console.log(this.sortable.toArray());
             },
             async getJobs() {
                 this.jobs = await this.db.allDocs({include_docs: true});
