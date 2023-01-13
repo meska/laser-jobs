@@ -11,6 +11,7 @@ export let commonMixin = {
         username: '',
         password: '',
         db: undefined,
+        sync: undefined,
         jobs: undefined,
         search: '',
         sort: {
@@ -36,17 +37,31 @@ export let commonMixin = {
             });
         },
         init: function () {
-            this.loading = true;
-            let urlparts = this.$dbUrl.split('//')
-            let url = urlparts[0] + '//' + `${this.$route.params.db}.${this.username}` + ':' + this.password + '@' + urlparts[1]
-            this.db = new PouchDB(`${url}laserjobs_${this.$route.params.db}`);
+            let app = this;
+            app.loading = true;
+            let urlparts = app.$dbUrl.split('//')
+            let url = urlparts[0] + '//' + `${app.$route.params.db}.${app.username}` + ':' + app.password + '@' + urlparts[1]
+            this.db = new PouchDB(app.$route.params.db);
+            this.sync = PouchDB.sync(app.$route.params.db, `${url}laserjobs_${app.$route.params.db}`, {
+                live: true,
+                retry: true
+            }).on('denied', function (err) {
+                if ((err) && ((err.status === 401) || (err.status === 403))) {
+                    app.loginPopUp = true;
+                }
+            }).on('error', function (err) {
+                if ((err) && ((err.status === 401) || (err.status === 403))) {
+                    app.loginPopUp = true;
+                }
+            });
+
             this.db.allDocs({include_docs: true, descending: true}, (err, doc) => {
                 if ((err) && ((err.status === 401) || (err.status === 403))) {
-                    this.loginPopUp = true;
+                    app.loginPopUp = true;
                 } else {
-                    this.jobs = doc.rows;
-                    this.loading = false;
-                    this.init2();
+                    app.jobs = doc.rows;
+                    app.loading = false;
+                    app.init2();
                 }
             });
         },
@@ -113,5 +128,6 @@ export let commonMixin = {
         },
     }, destroyed() {
         clearInterval(this.sortable_timer);
+        this.db.close()
     },
 }

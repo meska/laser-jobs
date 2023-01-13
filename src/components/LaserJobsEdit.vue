@@ -10,7 +10,7 @@
             </div>
             
             <v-spacer></v-spacer>
-            <v-btn icon @click="logout">
+            <v-btn icon @click="logout()" v-if="username">
                 <v-icon>mdi-logout</v-icon>
             </v-btn>
         </v-app-bar>
@@ -32,6 +32,7 @@
                 >
                     <v-row align="center">
                         <v-col>
+                            
                             <v-text-field
                                 v-model="search"
                                 clearable
@@ -158,6 +159,7 @@
                         label="Password"
                         outlined
                         type="password"
+                        @keyup.enter="login()"
                     ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
@@ -183,9 +185,6 @@
             btSort
         },
         name: "LaserJobsEdit",
-        data() {
-            return {}
-        },
         methods: {
             save: _.debounce(
                 function (item) {

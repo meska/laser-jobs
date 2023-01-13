@@ -10,6 +10,9 @@
             </div>
             
             <v-spacer></v-spacer>
+            <v-btn icon @click="logout()" v-if="username">
+                <v-icon>mdi-logout</v-icon>
+            </v-btn>
         </v-app-bar>
         <v-data-iterator
             :items="jobs"
@@ -29,6 +32,7 @@
                 >
                     <v-row align="center">
                         <v-col>
+                            
                             <v-text-field
                                 v-model="search"
                                 clearable
@@ -99,7 +103,33 @@
             </template>
         
         </v-data-iterator>
-    
+            <v-dialog v-model="loginPopUp" width="40vw">
+            <v-card>
+                <v-card-title>
+                    Login
+                </v-card-title>
+                <v-card-text>
+                    <v-text-field
+                        v-model="username"
+                        label="Username"
+                        outlined
+                    ></v-text-field>
+                    <v-text-field
+                        v-model="password"
+                        label="Password"
+                        outlined
+                        type="password"
+                        @keyup.enter="login()"
+                    ></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn @click="loginPopUp = false" color="blue">Cancel</v-btn>
+                    <v-btn @click="login()" color="green">Login</v-btn>
+                </v-card-actions>
+            
+            </v-card>
+        </v-dialog>
     
     </div>
 </template>
