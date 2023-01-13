@@ -1,5 +1,7 @@
 # laserjobs
 
+![TeamCity build status](https://teamcity.mecomsrl.com/app/rest/builds/buildType:id:MeskaTech_LaserJobs_Build/statusIcon.svg)
+
 ## Project setup
 ```
 yarn install
