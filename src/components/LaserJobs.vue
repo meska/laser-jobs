@@ -17,6 +17,7 @@
             :items-per-page="50"
             :sort-by="sort.by"
             :sort-desc="sort.desc"
+            :loading="loading"
             ref="tabela"
             :footer-props="{
                 'items-per-page-options': [50,100,500]
@@ -46,6 +47,9 @@
                         <thead>
                         <tr class="caption text-uppercase">
                             <th scope="col">
+                                Colore
+                            </th>
+                            <th scope="col">
                                 Codice
                             </th>
                             <th scope="col">
@@ -62,11 +66,14 @@
                         </thead>
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id">
-                            <td class="mr-0 pr-0">
+                            <td width="1%">
+                                <v-icon large :color="item.doc.color.hexa">mdi-checkbox-blank-circle</v-icon>
+                            </td>
+                            <td class="text-h4" width="30%">
                                 {{ item.doc.codice }}
                             </td>
                             
-                            <td>
+                            <td class="text-h4">
                                 {{ item.doc.descrizione }}
                             
                             </td>
@@ -124,8 +131,10 @@
         },
         mounted() {
             console.log("Ciaone");
+            this.loading = true;
             this.db.allDocs({include_docs: true, descending: true}, (err, doc) => {
                 this.jobs = doc.rows;
+                this.loading = false;
             });
             let app = this;
             
@@ -150,7 +159,6 @@
                     } else {
                         app.jobs.push(change);
                     }
-                    console.log(change.doc);
                 }
             }).on('error', function (err) {
                 // handle errors

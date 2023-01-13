@@ -17,6 +17,7 @@
             :items-per-page="50"
             :sort-by="sort.by"
             :sort-desc="sort.desc"
+            :loading="loading"
             ref="tabela"
             :footer-props="{
                 'items-per-page-options': [50,100,500]
@@ -52,6 +53,9 @@
                                 <bt-sort v-model="sort" label="Sort" field="doc.ordinamento"/>
                             </th>
                             <th scope="col">
+                                Colore
+                            </th>
+                            <th scope="col">
                                 <bt-sort v-model="sort" label="Codice" field="doc.codice"/>
                             </th>
                             <th scope="col">
@@ -70,6 +74,9 @@
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id">
                             <td class="sort-handle text-center" width="30px">
                                 <v-icon>mdi-drag</v-icon>
+                            </td>
+                            <td>
+                                <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs @input="saveColor(item)"></v-color-picker>
                             </td>
                             <td class="mr-0 pr-0">
                                 <v-text-field
@@ -166,8 +173,10 @@
         },
         mounted() {
             console.log("Ciaone");
+            this.loading = false;
             this.db.allDocs({include_docs: true, descending: true}, (err, doc) => {
                 this.jobs = doc.rows;
+                this.loading = true;
             });
             let app = this;
             
@@ -192,7 +201,6 @@
                     } else {
                         app.jobs.push(change);
                     }
-                    console.log(change.doc);
                 }
             }).on('error', function (err) {
                 // handle errors
@@ -207,11 +215,19 @@
             save: _.debounce(
                 function (item) {
                     item.doc.date = new Date();
+                    /*
                     if (item.doc.done === true) {
                         item.doc.ordinamento = 1000 + item.doc.ordinamento;
                     } else {
                         item.doc.ordinamento = item.doc.ordinamento - 1000;
                     }
+                    */
+                    this.db.put(item.doc);
+                },
+            ),
+            saveColor: _.debounce(
+                function (item) {
+                    item.doc.date = new Date();
                     this.db.put(item.doc);
                 },
             ),
