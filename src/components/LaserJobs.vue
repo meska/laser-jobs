@@ -15,8 +15,7 @@
             </v-btn>
         </v-app-bar>
         <v-data-iterator
-            :items="jobs"
-            :search.sync="search"
+            :items="filteredJobs"
             :items-per-page="50"
             :sort-by="sort.by"
             :sort-desc="sort.desc"

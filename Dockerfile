@@ -1,7 +1,7 @@
 FROM node:18 as build-stage
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-ARG APP_DB_URL=https://laserjobsdb.onlinegest.it/
+ARG APP_DB_URL
 ENV VUE_APP_DB_URL=$APP_DB_URL
 
 WORKDIR /app

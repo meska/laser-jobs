@@ -30,6 +30,17 @@ export let commonMixin = {
             }
         });
     },
+    computed: {
+      filteredJobs() {
+        let jobs = this.jobs
+        if (this.search) {
+          jobs = _.filter(jobs, (job) => {
+            return (job.doc.descrizione.toLowerCase().includes(this.search.toLowerCase()) || (job.doc.codice.toLowerCase().includes(this.search.toLowerCase())))
+          })
+        }
+        return jobs
+      }
+    },
     methods: {
         logout: function () {
             this.$vlf.removeItem('auth').then(() => {
