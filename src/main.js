@@ -14,7 +14,7 @@ momentDurationFormatSetup(moment)
 require('moment/locale/it')
 
 
-Vue.prototype.$dbUrl = process.env.VUE_APP_DB_URL
+Vue.prototype.$dbUrl = "https://laserjobsdb.onlinegest.it/"
 
 Vue.use(VueMoment, {moment});
 Vue.use(Vlf, localforage);
