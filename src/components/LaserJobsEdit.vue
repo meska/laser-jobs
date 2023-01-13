@@ -6,7 +6,7 @@
             dark
         >
             <div class="d-flex align-center">
-                <h1 class="text-h5 mb-0">LaserJobs - {{this.$route.params.db}}</h1>
+                <h1 class="text-h5 mb-0">LaserJobs Edit - {{this.$route.params.db}}</h1>
             </div>
             
             <v-spacer></v-spacer>
