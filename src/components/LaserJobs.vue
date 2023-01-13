@@ -68,9 +68,10 @@
                         </tr>
                         </thead>
                         <tbody id="jobsTable">
-                        <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id">
+                        <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
+                            :style="{color: item.doc.done ? '#8080807d' : ''}">
                             <td width="1%">
-                                <v-icon large :color="item.doc.color.hexa">mdi-checkbox-blank-circle</v-icon>
+                                <v-icon large :color="item.doc.done?  '#8080807d' : item.doc.color.hexa">mdi-checkbox-blank-circle</v-icon>
                             </td>
                             <td class="text-h4" width="30%">
                                 {{ item.doc.codice }}
@@ -102,7 +103,7 @@
             </template>
         
         </v-data-iterator>
-            <v-dialog v-model="loginPopUp" width="40vw">
+        <v-dialog v-model="loginPopUp" width="40vw">
             <v-card>
                 <v-card-title>
                     Login

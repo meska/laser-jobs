@@ -74,7 +74,7 @@
                         </tr>
                         </thead>
                         <tbody id="jobsTable">
-                        <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id">
+                        <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id" :style="{color: item.doc.done? '#8080807d' : ''}">
                             <td class="sort-handle text-center" width="30px">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
