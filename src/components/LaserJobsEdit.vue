@@ -201,12 +201,16 @@
                 this.db.post({
                     codice: "",
                     descrizione: "",
-                    ordinamento: -1,
+                    ordinamento: 500,
                     date: new Date(),
+                }).then(() => {
+                    this.updateSort();
                 });
             },
             deleteJob(job) {
-                this.db.remove(job.doc);
+                this.db.remove(job.doc).then(() => {
+                    this.updateSort();
+                });
             },
         }
     }
