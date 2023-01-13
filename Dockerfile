@@ -1,8 +1,9 @@
 FROM node:18 as build-stage
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-ARG APP_DB_URL=http://127.0.0.1:5984/
-
+ARG APP_DB_URL
+# ARG APP_DB_URL=http://127.0.0.1:5984/
+RUN echo $APP_DB_URL
 ENV VUE_APP_DB_URL=$APP_DB_URL
 
 WORKDIR /app
