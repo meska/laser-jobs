@@ -105,69 +105,15 @@
 </template>
 
 <script>
-    import PouchDB from "pouchdb";
+    
     import _ from "lodash";
-    import Sortable from 'sortablejs';
+    
+    import {commonMixin} from "@/mixins/commonMixin";
     
     export default {
+        mixins: [commonMixin],
         components: {},
         name: "LaserJobs",
-        data() {
-            return {
-                db: undefined,
-                jobs: undefined,
-                search: '',
-                sort: {
-                    desc: false,
-                    by: 'doc.ordinamento',
-                },
-                loading: true,
-                sortable: undefined,
-                sortable_timer: undefined,
-            }
-        },
-        created() {
-            this.db = new PouchDB(`${this.$dbUrl}laserjobs_${this.$route.params.db}`)
-        },
-        mounted() {
-            console.log("Ciaone");
-            this.loading = true;
-            this.db.allDocs({include_docs: true, descending: true}, (err, doc) => {
-                this.jobs = doc.rows;
-                this.loading = false;
-            });
-            let app = this;
-            
-            this.db.changes({
-                since: 'now',
-                live: true,
-                include_docs: true
-            }).on('change', function (change) {
-                // change.id contains the doc id, change.doc contains the doc
-                if (change.deleted) {
-                    // document was deleted
-                    app.jobs = app.jobs.filter((job) => {
-                        return job.doc._id !== change.id;
-                    });
-                } else {
-                    // document was added/modified
-                    let existing = _.find(app.jobs, (job) => {
-                        return job.doc._id === change.id;
-                    })
-                    if (existing) {
-                        existing.doc = change.doc;
-                    } else {
-                        app.jobs.push(change);
-                    }
-                }
-            }).on('error', function (err) {
-                // handle errors
-                console.log(err);
-            });
-        },
-        destroyed() {
-            clearInterval(this.sortable_timer);
-        },
         methods: {
             save: _.debounce(
                 function (item) {
@@ -180,65 +126,10 @@
                     this.db.put(item.doc);
                 },
             ),
-            setupSortable: function () {
-                let app = this
-                let el = document.getElementById('jobsTable');
-                if (el) {
-                    clearInterval(app.sortable_timer)
-                    app.sortable = new Sortable(el, {
-                        animation: 150,
-                        onUpdate: app.updateSort,
-                        handle: ".sort-handle",
-                        // disabled: !app.cansort,
-                    })
-                }
-            },
-            updateSort: function () {
-                _.forEach(this.sortable.toArray(), (id, index) => {
-                    let job = _.find(this.jobs, (job) => {
-                        return job.id === id;
-                    })
-                    job.doc.ordinamento = index;
-                    this.db.put(job.doc);
-                })
-                // console.log(this.sortable.toArray());
-            },
-            async getJobs() {
-                this.jobs = await this.db.allDocs({include_docs: true});
-            },
-            newjob() {
-                this.db.post({
-                    codice: "",
-                    descrizione: "",
-                    ordinamento: -1,
-                    date: new Date(),
-                });
-            },
-            deleteJob(job) {
-                this.db.remove(job.doc);
-            },
-            updateJob(job) {
-                job.doc.codice = "Ciao New";
-                job.doc.date = new Date()
-                this.db.put(job.doc);
-            }
-            
         }
     }
 </script>
 
 <style scoped>
-.sort-handle {
-    cursor: move; /* fallback if grab cursor is unsupported */
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
-}
 
-/* (Optional) Apply a "closed-hand" cursor during drag operation. */
-.sort-handle:active {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
-}
 </style>

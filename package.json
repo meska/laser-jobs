@@ -9,14 +9,16 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "moment-duration-format": "^2.3.2",
     "momentjs": "^2.0.0",
     "pouchdb": "^8.0.0",
     "sortablejs": "^1.15.0",
+    "vlf": "^1.1.0",
     "vue": "^2.6.14",
     "vue-moment": "^4.1.0",
-     "vue-router": "3.*",
+    "vue-router": "3.*",
     "vuetify": "^2.6.0",
     "vuetify-toast-snackbar-ng": "^0.7.5"
   },

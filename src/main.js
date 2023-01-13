@@ -4,6 +4,9 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify'
 import VueMoment from 'vue-moment'
 import router from "./router";
+import Vlf from 'vlf'
+import localforage from "localforage";
+
 Vue.config.productionTip = false
 const moment = require('moment')
 const momentDurationFormatSetup = require("moment-duration-format")
@@ -14,7 +17,7 @@ require('moment/locale/it')
 Vue.prototype.$dbUrl = process.env.VUE_APP_DB_URL
 
 Vue.use(VueMoment, {moment});
-
+Vue.use(Vlf, localforage);
 new Vue({
   vuetify,
   router,

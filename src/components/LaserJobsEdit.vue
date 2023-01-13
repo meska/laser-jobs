@@ -10,6 +10,9 @@
             </div>
             
             <v-spacer></v-spacer>
+            <v-btn icon @click="logout">
+                <v-icon>mdi-logout</v-icon>
+            </v-btn>
         </v-app-bar>
         <v-data-iterator
             :items="jobs"
@@ -76,7 +79,8 @@
                                 <v-icon>mdi-drag</v-icon>
                             </td>
                             <td>
-                                <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs @input="saveColor(item)"></v-color-picker>
+                                <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs
+                                                @input="saveColor(item)"></v-color-picker>
                             </td>
                             <td class="mr-0 pr-0">
                                 <v-text-field
@@ -138,90 +142,54 @@
             </template>
         
         </v-data-iterator>
-    
-    
+        <v-dialog v-model="loginPopUp" width="40vw">
+            <v-card>
+                <v-card-title>
+                    Login
+                </v-card-title>
+                <v-card-text>
+                    <v-text-field
+                        v-model="username"
+                        label="Username"
+                        outlined
+                    ></v-text-field>
+                    <v-text-field
+                        v-model="password"
+                        label="Password"
+                        outlined
+                        type="password"
+                    ></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn @click="loginPopUp = false" color="blue">Cancel</v-btn>
+                    <v-btn @click="login()" color="green">Login</v-btn>
+                </v-card-actions>
+            
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script>
-    import PouchDB from "pouchdb";
     import btSort from "@/components/include/BtSort";
     import _ from "lodash";
-    import Sortable from 'sortablejs';
+    import {commonMixin} from "@/mixins/commonMixin";
     
     export default {
+        mixins: [commonMixin],
+        computed: {},
         components: {
             btSort
         },
         name: "LaserJobsEdit",
         data() {
-            return {
-                db: undefined,
-                jobs: undefined,
-                search: '',
-                sort: {
-                    desc: false,
-                    by: 'doc.ordinamento',
-                },
-                loading: true,
-                sortable: undefined,
-                sortable_timer: undefined,
-            }
-        },
-        created() {
-            this.db = new PouchDB(`${this.$dbUrl}laserjobs_${this.$route.params.db}`)
-        },
-        mounted() {
-            console.log("Ciaone");
-            this.loading = false;
-            this.db.allDocs({include_docs: true, descending: true}, (err, doc) => {
-                this.jobs = doc.rows;
-                this.loading = true;
-            });
-            let app = this;
-            
-            this.db.changes({
-                since: 'now',
-                live: true,
-                include_docs: true
-            }).on('change', function (change) {
-                // change.id contains the doc id, change.doc contains the doc
-                if (change.deleted) {
-                    // document was deleted
-                    app.jobs = app.jobs.filter((job) => {
-                        return job.doc._id !== change.id;
-                    });
-                } else {
-                    // document was added/modified
-                    let existing = _.find(app.jobs, (job) => {
-                        return job.doc._id === change.id;
-                    })
-                    if (existing) {
-                        existing.doc = change.doc;
-                    } else {
-                        app.jobs.push(change);
-                    }
-                }
-            }).on('error', function (err) {
-                // handle errors
-                console.log(err);
-            });
-            app.sortable_timer = setInterval(this.setupSortable, 50)
-        },
-        destroyed() {
-            clearInterval(this.sortable_timer);
+            return {}
         },
         methods: {
             save: _.debounce(
                 function (item) {
                     item.doc.date = new Date();
-                    /*
-                    if (item.doc.done === true) {
-                        item.doc.ordinamento = 1000 + item.doc.ordinamento;
-                    } else {
-                        item.doc.ordinamento = item.doc.ordinamento - 1000;
-                    }
-                    */
                     this.db.put(item.doc);
                 },
             ),
@@ -231,31 +199,6 @@
                     this.db.put(item.doc);
                 },
             ),
-            setupSortable: function () {
-                let app = this
-                let el = document.getElementById('jobsTable');
-                if (el) {
-                    clearInterval(app.sortable_timer)
-                    app.sortable = new Sortable(el, {
-                        animation: 150,
-                        onUpdate: app.updateSort,
-                        handle: ".sort-handle",
-                        // disabled: !app.cansort,
-                    })
-                }
-            },
-            updateSort: function () {
-                _.forEach(this.sortable.toArray(), (id, index) => {
-                    let job = _.find(this.jobs, (job) => {
-                        return job.id === id;
-                    })
-                    job.doc.ordinamento = index;
-                    this.db.put(job.doc);
-                })
-            },
-            async getJobs() {
-                this.jobs = await this.db.allDocs({include_docs: true});
-            },
             newjob() {
                 this.db.post({
                     codice: "",
@@ -267,12 +210,6 @@
             deleteJob(job) {
                 this.db.remove(job.doc);
             },
-            updateJob(job) {
-                job.doc.codice = "Ciao New";
-                job.doc.date = new Date()
-                this.db.put(job.doc);
-            }
-            
         }
     }
 </script>
