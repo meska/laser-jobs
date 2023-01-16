@@ -10,6 +10,7 @@
             </div>
             
             <v-spacer></v-spacer>
+            <span class="caption">Ver. {{$AppVersion}}</span>
             <v-btn icon @click="logout()" v-if="username">
                 <v-icon>mdi-logout</v-icon>
             </v-btn>

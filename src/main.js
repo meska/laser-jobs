@@ -15,6 +15,7 @@ require('moment/locale/it')
 
 
 Vue.prototype.$dbUrl = "https://laserjobsdb.onlinegest.it/"
+Vue.prototype.$AppVersion = process.env.VUE_APP_PACKAGE_VERSION
 
 Vue.use(VueMoment, {moment});
 Vue.use(Vlf, localforage);
