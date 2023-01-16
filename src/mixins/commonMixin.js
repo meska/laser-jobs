@@ -136,7 +136,6 @@ export let commonMixin = {
                     animation: 150,
                     onUpdate: app.updateSort,
                     handle: ".sort-handle",
-                    // disabled: !app.cansort,
                 })
             }
         },
