@@ -53,6 +53,9 @@
                                 Colore
                             </th>
                             <th scope="col">
+                                Consegna
+                            </th>
+                            <th scope="col">
                                 Codice
                             </th>
                             <th scope="col">
@@ -71,7 +74,12 @@
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
                             :style="{color: item.doc.done ? '#8080807d' : ''}">
                             <td width="1%">
-                                <v-icon large :color="item.doc.done?  '#8080807d' : item.doc.color.hexa">mdi-checkbox-blank-circle</v-icon>
+                                <v-icon large :color="item.doc.done?  '#8080807d' : item.doc.color.hexa">
+                                    mdi-checkbox-blank-circle
+                                </v-icon>
+                            </td>
+                            <td class="text-h4" width="10%">
+                                {{ item.doc.data_consegna | moment('L')}}
                             </td>
                             <td class="text-h4" width="30%">
                                 {{ item.doc.codice }}

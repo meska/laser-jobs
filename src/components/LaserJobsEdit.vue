@@ -65,6 +65,9 @@
                                 <bt-sort v-model="sort" label="Descrizione" field="doc.descrizione"/>
                             </th>
                             <th scope="col">
+                                <bt-sort v-model="sort" label="Consegna" field="doc.data_consegna"/>
+                            </th>
+                            <th scope="col">
                                 <bt-sort v-model="sort" label="Fatto" field="doc.done"/>
                             </th>
                             <th scope="col" width="1%" colspan="2">
@@ -74,7 +77,8 @@
                         </tr>
                         </thead>
                         <tbody id="jobsTable">
-                        <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id" :style="{color: item.doc.done? '#8080807d' : ''}">
+                        <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
+                            :style="{color: item.doc.done? '#8080807d' : ''}">
                             <td class="sort-handle text-center" width="30px">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
@@ -111,6 +115,51 @@
                                     type="text"
                                     @change="save(item)"
                                 ></v-text-field>
+                            </td>
+                            <td width="10%">
+                                <v-menu
+                                    ref="datainiziomenu"
+                                    v-model="datainiziomenu[item.id]"
+                                    :close-on-content-click="false"
+                                    :return-value.sync="item.doc.data_consegna"
+                                    transition="scale-transition"
+                                    offset-y
+                                    min-width="auto"
+                                >
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-text-field
+                                            class="mr-2"
+                                            v-model="item.doc.data_consegna"
+                                            label="Consegna"
+                                            prepend-icon="mdi-calendar"
+                                            readonly
+                                            v-bind="attrs"
+                                            v-on="on"
+                                        ></v-text-field>
+                                    </template>
+                                    <v-date-picker
+                                        v-model="item.doc.data_consegna"
+                                        no-title
+                                        scrollable
+                                    >
+                                        <v-spacer></v-spacer>
+                                        <v-btn
+                                            text
+                                            color="primary"
+                                            @click="datainiziomenu[item.id] = false"
+                                        >
+                                            Cancel
+                                        </v-btn>
+                                        <v-btn
+                                            text
+                                            color="primary"
+                                            @click="save(item)"
+                                        >
+                                            OK
+                                        </v-btn>
+                                    </v-date-picker>
+                                </v-menu>
+                            
                             </td>
                             <td width="1%">
                                 <v-checkbox
@@ -179,6 +228,11 @@
     
     export default {
         mixins: [commonMixin],
+        data() {
+            return {
+                datainiziomenu: {},
+            }
+        },
         computed: {},
         components: {
             btSort
@@ -187,8 +241,10 @@
         methods: {
             save: _.debounce(
                 function (item) {
+                    debugger
                     item.doc.date = new Date();
                     this.db.put(item.doc);
+                    this.datainiziomenu[item.id] = false
                 },
             ),
             saveColor: _.debounce(
