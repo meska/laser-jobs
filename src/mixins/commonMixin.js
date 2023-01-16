@@ -31,15 +31,27 @@ export let commonMixin = {
         });
     },
     computed: {
-      filteredJobs() {
-        let jobs = this.jobs
-        if (this.search) {
-          jobs = _.filter(jobs, (job) => {
-            return (job.doc.descrizione.toLowerCase().includes(this.search.toLowerCase()) || (job.doc.codice.toLowerCase().includes(this.search.toLowerCase())))
-          })
+        filteredJobs() {
+            let jobs = this.jobs
+            if (this.search) {
+                jobs = _.filter(jobs, (job) => {
+                    return (job.doc.descrizione.toLowerCase().includes(this.search.toLowerCase()) || (job.doc.codice.toLowerCase().includes(this.search.toLowerCase())))
+                })
+            }
+            return jobs
+        },
+        filteredJobsReadonly() {
+            let jobs = this.jobs
+            jobs = _.filter(jobs, (job) => {
+                return (job.doc.descrizione !== '') || (job.doc.codice !== '')
+            })
+            if (this.search) {
+                jobs = _.filter(jobs, (job) => {
+                    return (job.doc.descrizione.toLowerCase().includes(this.search.toLowerCase()) || (job.doc.codice.toLowerCase().includes(this.search.toLowerCase())))
+                })
+            }
+            return jobs
         }
-        return jobs
-      }
     },
     methods: {
         logout: function () {
