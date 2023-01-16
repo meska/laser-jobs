@@ -53,7 +53,7 @@
                     <template v-slot:default>
                         <thead>
                         <tr class="caption text-uppercase">
-                            <th scope="col" width="30px">
+                            <th scope="col" style="width: 30px">
                                 <bt-sort v-model="sort" label="Sort" field="doc.ordinamento"/>
                             </th>
                             <th scope="col">
@@ -71,7 +71,7 @@
                             <th scope="col">
                                 <bt-sort v-model="sort" label="Fatto" field="doc.done"/>
                             </th>
-                            <th scope="col" width="1%" colspan="2">
+                            <th scope="col" style="width: 1%" colspan="2">
                             
                             </th>
                         
@@ -80,7 +80,7 @@
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
                             :style="{color: item.doc.done? '#8080807d' : ''}">
-                            <td class="sort-handle text-center" width="30px">
+                            <td class="sort-handle text-center" style="width: 20px">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
                             <td>
@@ -118,7 +118,7 @@
                                     @change="save(item)"
                                 ></v-text-field>
                             </td>
-                            <td width="10%">
+                            <td style="width: 10%">
                                 <v-menu
                                     ref="datainiziomenu"
                                     v-model="datainiziomenu[item.id]"
@@ -163,7 +163,7 @@
                                 </v-menu>
                             
                             </td>
-                            <td width="1%">
+                            <td style="width: 1%">
                                 <v-checkbox
                                     tabindex="-1"
                                     v-model="item.doc.done"
@@ -177,11 +177,11 @@
                                     @change="save(item)"
                                 ></v-checkbox>
                             </td>
-                            <td width="1%" class="text-no-wrap">
+                            <td style="width: 1%" class="text-no-wrap">
                                 {{ item.doc.date | moment('LLL') }}
                             </td>
                             
-                            <td width="1%">
+                            <td style="width: 1%">
                                 <v-btn @click="deleteJob(item)" color="orange" tabindex="-1">
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
