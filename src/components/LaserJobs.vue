@@ -10,7 +10,7 @@
             </div>
             
             <v-spacer></v-spacer>
-            <span class="caption">Ver. {{$AppVersion}}</span>
+            <span class="caption">Ver. {{ $AppVersion }}</span>
             <v-btn icon @click="logout()" v-if="username">
                 <v-icon>mdi-logout</v-icon>
             </v-btn>
@@ -80,7 +80,7 @@
                                 </v-icon>
                             </td>
                             <td class="text-h4" width="10%">
-                                {{ item.doc.data_consegna | moment('L')}}
+                                {{ item.doc.data_consegna | moment('L') }}
                             </td>
                             <td class="text-h4" width="30%">
                                 {{ item.doc.codice }}

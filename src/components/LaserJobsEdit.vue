@@ -10,7 +10,7 @@
             </div>
             
             <v-spacer></v-spacer>
-            <span class="caption">Ver. {{$AppVersion}}</span>
+            <span class="caption">Ver. {{ $AppVersion }}</span>
             <v-btn icon @click="logout()" v-if="username">
                 <v-icon>mdi-logout</v-icon>
             </v-btn>
@@ -43,7 +43,7 @@
                             ></v-text-field>
                         </v-col>
                         <v-col class="flex-shrink-1 flex-grow-0">
-                            <v-btn @click="newjob()" color="green">Aggiungi</v-btn>
+                            <v-btn @click="newjob()" color="green">Aggiungi (CRL+A)</v-btn>
                         </v-col>
                     </v-row>
                 </v-toolbar>
@@ -84,7 +84,7 @@
                                 <v-icon>mdi-drag</v-icon>
                             </td>
                             <td>
-                                <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs
+                                <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs tabindex="-1"
                                                 @input="saveColor(item)"></v-color-picker>
                             </td>
                             <td class="mr-0 pr-0">
@@ -99,6 +99,7 @@
                                     single-line
                                     type="text"
                                     @change="save(item)"
+                                    :ref="`codice-${item.id}`"
                                 ></v-text-field>
                             
                             </td>
@@ -133,9 +134,9 @@
                                             v-model="item.doc.data_consegna"
                                             label="Consegna"
                                             prepend-icon="mdi-calendar"
-                                            readonly
                                             v-bind="attrs"
                                             v-on="on"
+                                            @change="save(item)"
                                         ></v-text-field>
                                     </template>
                                     <v-date-picker
@@ -164,6 +165,7 @@
                             </td>
                             <td width="1%">
                                 <v-checkbox
+                                    tabindex="-1"
                                     v-model="item.doc.done"
                                     dense
                                     flat
@@ -180,7 +182,7 @@
                             </td>
                             
                             <td width="1%">
-                                <v-btn @click="deleteJob(item)" color="orange">
+                                <v-btn @click="deleteJob(item)" color="orange" tabindex="-1">
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </td>
@@ -232,6 +234,7 @@
         data() {
             return {
                 datainiziomenu: {},
+                findcodice: '',
             }
         },
         computed: {},
@@ -239,10 +242,29 @@
             btSort
         },
         name: "LaserJobsEdit",
+        created() {
+            window.addEventListener("keydown", this.shortcuts);
+        },
+        destroyed() {
+            window.removeEventListener("keydown", this.shortcuts);
+        },
         methods: {
+            shortcuts(e) {
+                if (e.ctrlKey && e.keyCode === 65 && !this.loginPopUp) {
+                    e.preventDefault();
+                    this.newjob().then((job) => {
+                        // focus on codice
+                        this.findcodice = setInterval(() => {
+                            if (this.$refs[`codice-${job.id}`]) {
+                                this.$refs[`codice-${job.id}`][0].focus();
+                                clearInterval(this.findcodice);
+                            }
+                        }, 100);
+                    });
+                }
+            },
             save: _.debounce(
                 function (item) {
-                    debugger
                     item.doc.date = new Date();
                     this.db.put(item.doc);
                     this.datainiziomenu[item.id] = false
@@ -254,14 +276,15 @@
                     this.db.put(item.doc);
                 },
             ),
-            newjob() {
-                this.db.post({
+            newjob: async function () {
+                return this.db.post({
                     codice: "",
                     descrizione: "",
                     ordinamento: 500,
                     date: new Date(),
-                }).then(() => {
+                }).then((job) => {
                     this.updateSort();
+                    return job;
                 });
             },
             deleteJob(job) {
