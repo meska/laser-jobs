@@ -53,10 +53,10 @@
                     <template v-slot:default>
                         <thead>
                         <tr class="caption text-uppercase">
-                            <th scope="col" style="width: 30px">
+                            <th scope="col" style="width: 30px" class="hidden-sm-and-down">
                                 <bt-sort v-model="sort" label="Sort" field="doc.ordinamento"/>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="hidden-sm-and-down">
                                 Colore
                             </th>
                             <th scope="col">
@@ -80,10 +80,10 @@
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
                             :style="{color: item.doc.done? '#8080807d' : ''}">
-                            <td class="sort-handle text-center" style="width: 20px">
+                            <td class="sort-handle text-center hidden-sm-and-down" style="width: 20px">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
-                            <td>
+                            <td class="hidden-sm-and-down">
                                 <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs tabindex="-1"
                                                 @input="saveColor(item)"></v-color-picker>
                             </td>
@@ -177,7 +177,7 @@
                                     @change="save(item)"
                                 ></v-checkbox>
                             </td>
-                            <td style="width: 1%" class="text-no-wrap">
+                            <td style="width: 1%" class="text-no-wrap hidden-sm-and-down">
                                 {{ item.doc.date | moment('LLL') }}
                             </td>
                             
@@ -194,7 +194,7 @@
             </template>
         
         </v-data-iterator>
-        <v-dialog v-model="loginPopUp" width="40vw">
+        <v-dialog v-model="loginPopUp">
             <v-card>
                 <v-card-title>
                     Login

@@ -112,7 +112,7 @@
             </template>
         
         </v-data-iterator>
-        <v-dialog v-model="loginPopUp" width="40vw">
+        <v-dialog v-model="loginPopUp" >
             <v-card>
                 <v-card-title>
                     Login
