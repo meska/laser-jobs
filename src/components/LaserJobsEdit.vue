@@ -48,15 +48,15 @@
                     </v-row>
                 </v-toolbar>
             </template>
-            <template v-slot:default="props">
-                <v-simple-table>
+            <template v-slot:default="props" >
+                <v-simple-table >
                     <template v-slot:default>
                         <thead>
                         <tr class="caption text-uppercase">
-                            <th scope="col" style="width: 30px" class="hidden-sm-and-down">
-                                <bt-sort v-model="sort" label="Sort" field="doc.ordinamento"/>
+                            <th scope="col" style="width: 1%">
+                                <bt-sort v-model="sort" label="" field="doc.ordinamento"/>
                             </th>
-                            <th scope="col" class="hidden-sm-and-down">
+                            <th scope="col">
                                 Colore
                             </th>
                             <th scope="col">
@@ -80,10 +80,10 @@
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
                             :style="{color: item.doc.done? '#8080807d' : ''}">
-                            <td class="sort-handle text-center hidden-sm-and-down" style="width: 20px">
+                            <td class="sort-handle text-center" style="width: 1%">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
-                            <td class="hidden-sm-and-down">
+                            <td>
                                 <v-color-picker v-model="item.doc.color" hide-canvas hide-inputs tabindex="-1"
                                                 @input="saveColor(item)"></v-color-picker>
                             </td>
@@ -177,7 +177,7 @@
                                     @change="save(item)"
                                 ></v-checkbox>
                             </td>
-                            <td style="width: 1%" class="text-no-wrap hidden-sm-and-down">
+                            <td style="width: 1%" class="text-no-wrap">
                                 {{ item.doc.date | moment('LLL') }}
                             </td>
                             
