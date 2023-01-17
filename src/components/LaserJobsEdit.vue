@@ -171,6 +171,7 @@
                                     <v-checkbox
                                         tabindex="-1"
                                         v-model="item.doc.done"
+                                        :disabled="item.doc.sospeso"
                                         dense
                                         flat
                                         hide-details
@@ -187,6 +188,7 @@
                                     <v-checkbox
                                         tabindex="-1"
                                         v-model="item.doc.sospeso"
+                                        :disabled="item.doc.done"
                                         dense
                                         flat
                                         hide-details

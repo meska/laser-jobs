@@ -98,6 +98,7 @@
                                 <v-row dense class='d-flex justify-center'>
                                     <v-checkbox
                                         v-model="item.doc.done"
+                                        :disabled="item.doc.sospeso"
                                         dense
                                         flat
                                         hide-details
@@ -113,6 +114,7 @@
                                 <v-row dense class='d-flex justify-center'>
                                     <v-checkbox
                                         v-model="item.doc.sospeso"
+                                        :disabled="item.doc.done"
                                         dense
                                         flat
                                         hide-details
