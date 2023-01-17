@@ -13,12 +13,14 @@ export let commonMixin = {
         db: undefined,
         sync: undefined,
         jobs: undefined,
+        update: undefined,
         search: '',
         sort: {
             desc: false,
             by: 'doc.ordinamento',
         },
     }),
+
     created() {
         this.$vlf.getItem('auth').then(auth => {
             if (auth) {
@@ -54,6 +56,7 @@ export let commonMixin = {
         }
     },
     methods: {
+
         logout: function () {
             this.$vlf.removeItem('auth').then(() => {
                 window.location.reload();
