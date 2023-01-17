@@ -59,7 +59,7 @@
                 let version = this.$AppVersion
                 
                 // get the version from github
-                let response = await fetch('https://raw.githubusercontent.com/meska/laser-jobs/main/package.json')
+                let response = await fetch('https://raw.githubusercontent.com/meska/laser-jobs/main/package.json',{cache: "no-store"})
                 let json = await response.json()
                 let github_version = json.version
                 
