@@ -179,11 +179,13 @@
             save: _.debounce(
                 function (item) {
                     item.doc.date = new Date();
+                    /*
                     if (item.doc.done === true) {
                         item.doc.ordinamento = 1000 + item.doc.ordinamento;
                     } else {
                         item.doc.ordinamento = item.doc.ordinamento - 1000;
                     }
+                     */
                     this.db.put(item.doc);
                 },
             ),
