@@ -48,8 +48,8 @@
                     </v-row>
                 </v-toolbar>
             </template>
-            <template v-slot:default="props" >
-                <v-simple-table >
+            <template v-slot:default="props">
+                <v-simple-table>
                     <template v-slot:default>
                         <thead>
                         <tr class="caption text-uppercase">
@@ -71,6 +71,9 @@
                             <th scope="col">
                                 <bt-sort v-model="sort" label="Fatto" field="doc.done"/>
                             </th>
+                            <th scope="col">
+                                <bt-sort v-model="sort" label="Sospeso" field="doc.sospeso"/>
+                            </th>
                             <th scope="col" style="width: 1%" colspan="2">
                             
                             </th>
@@ -79,7 +82,7 @@
                         </thead>
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
-                            :style="{color: item.doc.done? '#8080807d' : ''}">
+                            :class="[item.doc.done ? 'cFatto' : item.doc.sospeso ? 'cSospeso' :'']">
                             <td class="sort-handle text-center" style="width: 1%">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
@@ -164,18 +167,36 @@
                             
                             </td>
                             <td style="width: 1%">
-                                <v-checkbox
-                                    tabindex="-1"
-                                    v-model="item.doc.done"
-                                    dense
-                                    flat
-                                    hide-details
-                                    outlined
-                                    placeholder="Fatto"
-                                    single-line
-                                    type="text"
-                                    @change="save(item)"
-                                ></v-checkbox>
+                                <v-row dense class='d-flex justify-center'>
+                                    <v-checkbox
+                                        tabindex="-1"
+                                        v-model="item.doc.done"
+                                        dense
+                                        flat
+                                        hide-details
+                                        outlined
+                                        placeholder="Fatto"
+                                        single-line
+                                        type="text"
+                                        @change="save(item)"
+                                    ></v-checkbox>
+                                </v-row>
+                            </td>
+                            <td style="width: 1%">
+                                <v-row dense class='d-flex justify-center'>
+                                    <v-checkbox
+                                        tabindex="-1"
+                                        v-model="item.doc.sospeso"
+                                        dense
+                                        flat
+                                        hide-details
+                                        outlined
+                                        placeholder="Fatto"
+                                        single-line
+                                        type="text"
+                                        @change="save(item)"
+                                    ></v-checkbox>
+                                </v-row>
                             </td>
                             <td style="width: 1%" class="text-no-wrap">
                                 {{ item.doc.date | moment('LLL') }}
@@ -297,6 +318,11 @@
 </script>
 
 <style scoped>
+
+::v-deep .theme--light.v-sheet {
+    background-color: unset !important;
+}
+
 .sort-handle {
     cursor: move; /* fallback if grab cursor is unsupported */
     cursor: grab;

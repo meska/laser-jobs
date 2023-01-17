@@ -65,6 +65,9 @@
                             <th scope="col">
                                 Fatto
                             </th>
+                            <th scope="col">
+                                Sospeso
+                            </th>
                             <th scope="col" width="1%" colspan="2">
                                 Aggiornato
                             </th>
@@ -73,9 +76,10 @@
                         </thead>
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
-                            :style="{color: item.doc.done ? '#8080807d' : ''}">
+                            :class="[item.doc.done ? 'cFatto' : item.doc.sospeso ? 'cSospeso' :'']">
                             <td width="1%">
-                                <v-icon large :color="item.doc.done?  '#8080807d' : item.doc.color.hexa">
+                                <v-icon large
+                                        :color="item.doc.color.hexa">
                                     mdi-checkbox-blank-circle
                                 </v-icon>
                             </td>
@@ -91,17 +95,35 @@
                             
                             </td>
                             <td width="1%">
-                                <v-checkbox
-                                    v-model="item.doc.done"
-                                    dense
-                                    flat
-                                    hide-details
-                                    outlined
-                                    placeholder="Fatto"
-                                    single-line
-                                    type="text"
-                                    @change="save(item)"
-                                ></v-checkbox>
+                                <v-row dense class='d-flex justify-center'>
+                                    <v-checkbox
+                                        v-model="item.doc.done"
+                                        dense
+                                        flat
+                                        hide-details
+                                        outlined
+                                        placeholder="Fatto"
+                                        single-line
+                                        type="text"
+                                        @change="save(item)"
+                                    ></v-checkbox>
+                                </v-row>
+                            </td>
+                            <td width="1%">
+                                <v-row dense class='d-flex justify-center'>
+                                    <v-checkbox
+                                        v-model="item.doc.sospeso"
+                                        dense
+                                        flat
+                                        hide-details
+                                        outlined
+                                        placeholder="Sospeso"
+                                        single-line
+                                        type="text"
+                                        @change="save(item)"
+                                    ></v-checkbox>
+                                </v-row>
+                            </td>
                             <td width="1%" class="text-no-wrap">
                                 {{ item.doc.date | moment('LLL') }}
                             </td>
@@ -112,7 +134,7 @@
             </template>
         
         </v-data-iterator>
-        <v-dialog v-model="loginPopUp" >
+        <v-dialog v-model="loginPopUp">
             <v-card>
                 <v-card-title>
                     Login
