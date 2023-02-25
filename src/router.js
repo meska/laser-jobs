@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 const LaserJobs = () => import("./components/LaserJobs")
 const LaserJobsEdit = () => import("./components/LaserJobsEdit")
-const HelloWorld = () => import("./components/HelloWorld")
+const ChooseDb = () => import("./components/ChooseDb")
 const NotFound = () => import("./components/NotFound")
 
 const originalPush = Router.prototype.push;
@@ -16,7 +16,7 @@ const routes = [
     {
         path: '/',
         name: 'Home',
-        component: HelloWorld,
+        component: ChooseDb,
     },
     {
         path: '/laser/:db',

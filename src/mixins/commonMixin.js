@@ -22,6 +22,11 @@ export let commonMixin = {
     }),
 
     created() {
+        this.username = 'couchdb'
+        this.password = 'couchdb'
+        this.init()
+
+        /*
         this.$vlf.getItem('auth').then(auth => {
             if (auth) {
                 this.username = auth.username
@@ -31,6 +36,7 @@ export let commonMixin = {
                 this.loginPopUp = true;
             }
         });
+        */
     },
     computed: {
         filteredJobs() {
@@ -66,7 +72,8 @@ export let commonMixin = {
             let app = this;
             app.loading = true;
             let urlparts = app.$dbUrl.split('//')
-            let url = urlparts[0] + '//' + `${app.$route.params.db}.${app.username}` + ':' + app.password + '@' + urlparts[1]
+            // let url = urlparts[0] + '//' + `${app.$route.params.db}.${app.username}` + ':' + app.password + '@' + urlparts[1]
+            let url = urlparts[0] + '//' + `${app.username}` + ':' + app.password + '@' + urlparts[1]
             this.db = new PouchDB(app.$route.params.db);
             this.sync = PouchDB.sync(app.$route.params.db, `${url}laserjobs_${app.$route.params.db}`, {
                 live: true,
