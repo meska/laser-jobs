@@ -11,6 +11,7 @@ export let commonMixin = {
         username: '',
         password: '',
         db: undefined,
+        dblist: undefined,
         sync: undefined,
         jobs: undefined,
         update: undefined,
@@ -58,8 +59,8 @@ export let commonMixin = {
                     return (job.doc.descrizione.toLowerCase().includes(this.search.toLowerCase()) || (job.doc.codice.toLowerCase().includes(this.search.toLowerCase())))
                 })
             }
-            return jobs
-        }
+            return jobs.filter((job) => !job.doc.deleted);
+        },
     },
     methods: {
 
@@ -75,6 +76,11 @@ export let commonMixin = {
             // let url = urlparts[0] + '//' + `${app.$route.params.db}.${app.username}` + ':' + app.password + '@' + urlparts[1]
             let url = urlparts[0] + '//' + `${app.username}` + ':' + app.password + '@' + urlparts[1]
             this.db = new PouchDB(app.$route.params.db);
+
+            this.dblist = new PouchDB('dblist');
+            this.dblist.put({'_id': app.$route.params.db, 'url': app.$dbUrl})
+            this.dblist.sync(`${url}dblist`, {live: true, retry: true})
+
             this.sync = PouchDB.sync(app.$route.params.db, `${url}laserjobs_${app.$route.params.db}`, {
                 live: true,
                 retry: true
@@ -88,7 +94,7 @@ export let commonMixin = {
                 }
             });
 
-            this.db.allDocs({include_docs: true, descending: true}, (err, doc) => {
+            this.db.allDocs({include_docs: true, descending: true, deleted: 'ok'}, (err, doc) => {
                 if ((err) && ((err.status === 401) || (err.status === 403))) {
                     app.loginPopUp = true;
                 } else {
@@ -97,6 +103,7 @@ export let commonMixin = {
                     app.init2();
                 }
             });
+
         },
         init2: function () {
             let app = this;
@@ -161,5 +168,6 @@ export let commonMixin = {
     }, destroyed() {
         clearInterval(this.sortable_timer);
         this.db.close()
+        this.dblist.close()
     },
 }

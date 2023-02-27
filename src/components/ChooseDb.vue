@@ -14,13 +14,18 @@
                 <v-icon>mdi-logout</v-icon>
             </v-btn>
         </v-app-bar>
-    
+    <v-row v-if="dbs" class="mr-auto ml-auto mt-2">
+        <v-col v-for="(item,id) in dbs" v-bind:key="id">
+            <v-btn :to="`/laser/${item.key}/`">{{item.key}}</v-btn>
+        </v-col>
+    </v-row>
     </div>
 </template>
 
 <script>
     
     import _ from "lodash";
+    import PouchDB from "pouchdb";
     // import PouchDB from "pouchdb";
     
     
@@ -29,23 +34,31 @@
         name: "ChooseDb",
         data: () => ({
             dbs: [],
-
-            db: undefined,
+            dbList: undefined,
+            username: undefined,
+            loading: false,
         }),
-        created() {
+        mounted() {
             let app = this;
             let urlparts = app.$dbUrl.split('//')
-            let url = urlparts[0] + '//' + `${app.username}` + ':' + app.password + '@' + urlparts[1]
+            let url = urlparts[0] + '//couchdb:couchdb@' + urlparts[1]
             
             // get list of databases from the server with fetch
             
-            fetch(url + '/_all_dbs')
-                .then(response => response.json())
-                .then(dbs => {
-                    app.dbs = dbs;
-                });
-            },
-        
+            this.dbList = new PouchDB('dblist');
+            this.dbList.sync(`${url}dblist`, {live: true, retry: true});
+            this.dbList.allDocs({include_docs: true, descending: true}, (err, doc) => {
+                if ((err) && ((err.status === 401) || (err.status === 403))) {
+                    app.loginPopUp = true;
+                } else {
+                    app.dbs = doc.rows;
+                    app.loading = false;
+                }
+            });
+        },
+        destroyed() {
+            this.dbList.close();
+        },
         methods: {
             save: _.debounce(
                 function (item) {

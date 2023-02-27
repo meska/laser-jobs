@@ -16,7 +16,7 @@
             </v-btn>
         </v-app-bar>
         <v-data-iterator
-            :items="filteredJobs"
+            :items="jobsTodo"
             :items-per-page="50"
             :sort-by="sort.by"
             :sort-desc="sort.desc"
@@ -44,6 +44,11 @@
                         </v-col>
                         <v-col class="flex-shrink-1 flex-grow-0">
                             <v-btn @click="newjob()" color="green">Aggiungi (CRL+A)</v-btn>
+                        </v-col>
+                        <v-col class="flex-shrink-1 flex-grow-0">
+                            <v-btn @click="showDeleted = !showDeleted" :color="showDeleted ? 'green':'blue'">
+                                Cestino
+                            </v-btn>
                         </v-col>
                     </v-row>
                 </v-toolbar>
@@ -205,8 +210,11 @@
                             </td>
                             
                             <td style="width: 1%">
-                                <v-btn @click="deleteJob(item)" color="orange" tabindex="-1">
+                                <v-btn @click="deleteJob(item)" color="orange" tabindex="-1" v-if="!item.doc.deleted">
                                     <v-icon>mdi-delete</v-icon>
+                                </v-btn>
+                                <v-btn @click="restoreJob(item)" color="info" tabindex="-1" v-if="item.doc.deleted">
+                                    <v-icon>mdi-restore</v-icon>
                                 </v-btn>
                             </td>
                         
@@ -258,9 +266,22 @@
             return {
                 datainiziomenu: {},
                 findcodice: '',
+                showDeleted: false,
             }
         },
-        computed: {},
+        computed: {
+            jobsTodo() {
+                if (this.filteredJobs) {
+                    if (this.showDeleted) {
+                        return this.filteredJobs.filter((job) => job.doc.deleted);
+                    } else {
+                        return this.filteredJobs.filter((job) => !job.doc.deleted);
+                    }
+                } else {
+                    return undefined
+                }
+            },
+        },
         components: {
             btSort
         },
@@ -311,9 +332,24 @@
                 });
             },
             deleteJob(job) {
+                job.doc.date = new Date();
+                job.doc.deleted = true;
+                this.db.put(job.doc);
+                /*
                 this.db.remove(job.doc).then(() => {
                     this.updateSort();
                 });
+                */
+            },
+            restoreJob(job) {
+                job.doc.date = new Date();
+                job.doc.deleted = false;
+                this.db.put(job.doc);
+                /*
+                this.db.remove(job.doc).then(() => {
+                    this.updateSort();
+                });
+                */
             },
         }
     }

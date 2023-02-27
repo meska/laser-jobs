@@ -177,6 +177,7 @@
         components: {},
         name: "LaserJobs",
         methods: {
+            
             save: _.debounce(
                 function (item) {
                     item.doc.date = new Date();
