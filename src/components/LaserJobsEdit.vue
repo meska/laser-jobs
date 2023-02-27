@@ -1,20 +1,6 @@
 <template>
     <div>
-        <v-app-bar
-            app
-            color="primary"
-            dark
-        >
-            <div class="d-flex align-center">
-                <h1 class="text-h5 mb-0">LaserJobs - Edit - {{ this.$route.params.db }}</h1>
-            </div>
-            
-            <v-spacer></v-spacer>
-            <span class="caption">Ver. {{ $AppVersion }}</span>
-            <v-btn icon @click="logout()" v-if="username">
-                <v-icon>mdi-logout</v-icon>
-            </v-btn>
-        </v-app-bar>
+       <lj-app-bar :dbs="dbs"/>
         <v-data-iterator
             :items="jobsTodo"
             :items-per-page="50"
@@ -42,7 +28,7 @@
                                 label="Filtra"
                             ></v-text-field>
                         </v-col>
-                        <v-col class="flex-shrink-1 flex-grow-0">
+                        <v-col class="flex-shrink-1 flex-grow-0" v-if="!showDeleted">
                             <v-btn @click="newjob()" color="green">Aggiungi (CRL+A)</v-btn>
                         </v-col>
                         <v-col class="flex-shrink-1 flex-grow-0">
@@ -259,6 +245,7 @@
     import btSort from "@/components/include/BtSort";
     import _ from "lodash";
     import {commonMixin} from "@/mixins/commonMixin";
+    import LjAppBar from "@/components/include/LjAppBar.vue";
     
     export default {
         mixins: [commonMixin],
@@ -283,6 +270,7 @@
             },
         },
         components: {
+            LjAppBar,
             btSort
         },
         name: "LaserJobsEdit",

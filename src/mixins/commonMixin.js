@@ -11,6 +11,7 @@ export let commonMixin = {
         username: '',
         password: '',
         db: undefined,
+        dbs: undefined,
         dblist: undefined,
         sync: undefined,
         jobs: undefined,
@@ -21,12 +22,9 @@ export let commonMixin = {
             by: 'doc.ordinamento',
         },
     }),
-
-    created() {
+    mounted() {
         this.username = 'couchdb'
         this.password = 'couchdb'
-        this.init()
-
         /*
         this.$vlf.getItem('auth').then(auth => {
             if (auth) {
@@ -38,6 +36,7 @@ export let commonMixin = {
             }
         });
         */
+        this.init()
     },
     computed: {
         filteredJobs() {
@@ -73,9 +72,10 @@ export let commonMixin = {
             let app = this;
             app.loading = true;
             let urlparts = app.$dbUrl.split('//')
-            // let url = urlparts[0] + '//' + `${app.$route.params.db}.${app.username}` + ':' + app.password + '@' + urlparts[1]
             let url = urlparts[0] + '//' + `${app.username}` + ':' + app.password + '@' + urlparts[1]
             this.db = new PouchDB(app.$route.params.db);
+
+            localStorage.setItem('defaultDb', app.$route.params.db)
 
             this.dblist = new PouchDB('dblist');
             this.dblist.put({'_id': app.$route.params.db, 'url': app.$dbUrl})
@@ -103,7 +103,13 @@ export let commonMixin = {
                     app.init2();
                 }
             });
-
+            this.dblist.allDocs({include_docs: true, descending: true, deleted: 'ok'}, (err, doc) => {
+                if ((err) && ((err.status === 401) || (err.status === 403))) {
+                    app.loginPopUp = true;
+                } else {
+                    app.dbs = doc.rows;
+                }
+            });
         },
         init2: function () {
             let app = this;

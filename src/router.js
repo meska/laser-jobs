@@ -19,12 +19,12 @@ const routes = [
         component: ChooseDb,
     },
     {
-        path: '/laser/:db',
+        path: '/:db',
         name: 'LaserJobs',
         component: LaserJobs,
     },
     {
-        path: '/laser/:db/edit',
+        path: '/:db/edit',
         name: 'LaserJobsEdit',
         component: LaserJobsEdit,
     },

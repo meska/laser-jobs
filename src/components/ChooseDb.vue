@@ -14,9 +14,9 @@
                 <v-icon>mdi-logout</v-icon>
             </v-btn>
         </v-app-bar>
-    <v-row v-if="dbs" class="mr-auto ml-auto mt-2">
-        <v-col v-for="(item,id) in dbs" v-bind:key="id">
-            <v-btn :to="`/laser/${item.key}/`">{{item.key}}</v-btn>
+    <v-row v-if="dbs" class="mr-auto ml-auto mt-2 flex-column">
+        <v-col v-for="(item,id) in dbs" v-bind:key="id" class="flex-grow-1 flex-shrink-0">
+            <v-btn :to="`/${item.key}/`">{{item.key}}</v-btn>
         </v-col>
     </v-row>
     </div>
@@ -43,7 +43,12 @@
             let urlparts = app.$dbUrl.split('//')
             let url = urlparts[0] + '//couchdb:couchdb@' + urlparts[1]
             
-            // get list of databases from the server with fetch
+            let defaultDb = localStorage.getItem('defaultDb');
+            if (defaultDb) {
+                app.$router.push(`/${defaultDb}`);
+            } else {
+                app.$router.push(`/laser`);
+            }
             
             this.dbList = new PouchDB('dblist');
             this.dbList.sync(`${url}dblist`, {live: true, retry: true});

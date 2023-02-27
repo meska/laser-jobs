@@ -1,19 +1,6 @@
 <template>
     <div>
-        <v-app-bar
-            app
-            color="primary"
-            dark
-        >
-            <div class="d-flex align-center">
-                <h1 class="text-h5 mb-0">LaserJobs - {{ this.$route.params.db }}</h1>
-            </div>
-            <v-spacer></v-spacer>
-            <span class="caption">Ver. {{ $AppVersion }}</span>
-            <v-btn icon @click="logout()" v-if="username">
-                <v-icon>mdi-logout</v-icon>
-            </v-btn>
-        </v-app-bar>
+        <lj-app-bar/>
         <v-data-iterator
             :items="filteredJobsReadonly"
             :items-per-page="50"
@@ -171,10 +158,11 @@
     import _ from "lodash";
     
     import {commonMixin} from "@/mixins/commonMixin";
+    import LjAppBar from "@/components/include/LjAppBar.vue";
     
     export default {
         mixins: [commonMixin],
-        components: {},
+        components: {LjAppBar},
         name: "LaserJobs",
         methods: {
             
@@ -195,6 +183,3 @@
     }
 </script>
 
-<style scoped>
-
-</style>
