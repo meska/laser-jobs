@@ -1,6 +1,6 @@
 <template>
     <div>
-       <lj-app-bar :dbs="dbs"/>
+       <lj-app-bar :dbs="dbs" :connection-status="connectionStatus"/>
         <v-data-iterator
             :items="jobsTodo"
             :items-per-page="50"

@@ -8,14 +8,16 @@ export let commonMixin = {
         sortable: undefined,
         sortable_timer: undefined,
         loginPopUp: false,
-        username: '',
-        password: '',
         db: undefined,
         dbs: undefined,
         dblist: undefined,
         sync: undefined,
         jobs: undefined,
         update: undefined,
+        username: '', /* deprecated */
+        password: '',/* deprecated */
+        dbSettings: {},
+        connectionStatus: false,
         search: '',
         sort: {
             desc: false,
@@ -23,8 +25,14 @@ export let commonMixin = {
         },
     }),
     mounted() {
-        this.username = 'couchdb'
-        this.password = 'couchdb'
+        this.$vlf.getItem('dbSettings').then(dbSettings => {
+            if (dbSettings && dbSettings !== null) {
+                this.dbSettings = dbSettings
+                this.init()
+            } else {
+                this.connectionStatus = false;
+            }
+        })
         /*
         this.$vlf.getItem('auth').then(auth => {
             if (auth) {
@@ -36,7 +44,6 @@ export let commonMixin = {
             }
         });
         */
-        this.init()
     },
     computed: {
         filteredJobs() {
@@ -71,47 +78,74 @@ export let commonMixin = {
         init: function () {
             let app = this;
             app.loading = true;
-            let urlparts = app.$dbUrl.split('//')
-            let url = urlparts[0] + '//' + `${app.username}` + ':' + app.password + '@' + urlparts[1]
-            this.db = new PouchDB(app.$route.params.db);
+            try {
+                let urlparts = app.dbSettings.serverUrl.split('//')
+                let url = urlparts[0] + '//' + `${app.dbSettings.serverLogin}` + ':' + app.dbSettings.serverPassword + '@' + urlparts[1]
 
-            localStorage.setItem('defaultDb', app.$route.params.db)
 
-            this.dblist = new PouchDB('dblist');
-            this.dblist.put({'_id': app.$route.params.db, 'url': app.$dbUrl})
-            this.dblist.sync(`${url}dblist`, {live: true, retry: true})
+                if (!app.$route.params.db) {
+                    let defaultDb = localStorage.getItem('defaultDb');
+                    if (defaultDb) {
+                        app.$router.push(`/${defaultDb}`);
+                    } else {
+                        app.$router.push(`/laser`);
+                    }
+                }
 
-            this.sync = PouchDB.sync(app.$route.params.db, `${url}laserjobs_${app.$route.params.db}`, {
-                live: true,
-                retry: true
-            }).on('denied', function (err) {
-                if ((err) && ((err.status === 401) || (err.status === 403))) {
-                    app.loginPopUp = true;
-                }
-            }).on('error', function (err) {
-                if ((err) && ((err.status === 401) || (err.status === 403))) {
-                    app.loginPopUp = true;
-                }
-            });
+                //localStorage.setItem('defaultDb', app.$route.params.db)
 
-            this.db.allDocs({include_docs: true, descending: true, deleted: 'ok'}, (err, doc) => {
-                if ((err) && ((err.status === 401) || (err.status === 403))) {
-                    app.loginPopUp = true;
-                } else {
-                    app.jobs = doc.rows;
-                    app.loading = false;
-                    app.init2();
+                this.dblist = new PouchDB('dblist');
+                this.dblist.put({'_id': app.$route.params.db, 'url': app.dbSettings.serverUrl})
+                this.dblist.sync(`${url}dblist`, {live: true, retry: true}).on('denied', function (err) {
+                    if ((err) && ((err.status === 401) || (err.status === 403))) {
+                        app.connectionStatus = false;
+                    }
+                }).on('error', function (err) {
+                    if ((err) && ((err.status === 401) || (err.status === 403))) {
+                        app.connectionStatus = false;
+                    }
+                });
+
+                this.dblist.allDocs({include_docs: true, descending: true}, (err, doc) => {
+                    if ((err) && ((err.status === 401) || (err.status === 403))) {
+                        app.connectionStatus = false;
+                    } else {
+                        app.dbs = doc.rows;
+                        app.loading = false;
+                        this.connectionStatus = true;
+                    }
+                });
+                if (app.$route.params.db) {
+                    this.db = new PouchDB(app.$route.params.db);
+                    this.sync = PouchDB.sync(app.$route.params.db, `${url}laserjobs_${app.$route.params.db}`, {
+                        live: true,
+                        retry: true
+                    }).on('denied', function (err) {
+                        if ((err) && ((err.status === 401) || (err.status === 403))) {
+                            app.connectionStatus = false;
+                        }
+                    }).on('error', function (err) {
+                        if ((err) && ((err.status === 401) || (err.status === 403))) {
+                            app.connectionStatus = false;
+                        }
+                    });
+
+                    this.db.allDocs({include_docs: true, descending: true, deleted: 'ok'}, (err, doc) => {
+                        if ((err) && ((err.status === 401) || (err.status === 403))) {
+                            app.connectionStatus = false;
+                        } else {
+                            app.jobs = doc.rows;
+                            app.loading = false;
+                            this.connectionStatus = true;
+                            app.enableSync();
+                        }
+                    });
                 }
-            });
-            this.dblist.allDocs({include_docs: true, descending: true, deleted: 'ok'}, (err, doc) => {
-                if ((err) && ((err.status === 401) || (err.status === 403))) {
-                    app.loginPopUp = true;
-                } else {
-                    app.dbs = doc.rows;
-                }
-            });
+            } catch (e) {
+                console.log(e);
+            }
         },
-        init2: function () {
+        enableSync: function () {
             let app = this;
             this.db.changes({
                 since: 'now',
@@ -173,7 +207,9 @@ export let commonMixin = {
         },
     }, destroyed() {
         clearInterval(this.sortable_timer);
-        this.db.close()
+        if (this.db) {
+            this.db.close()
+        }
         this.dblist.close()
     },
 }

@@ -31,12 +31,18 @@
                     </template>
                 </v-autocomplete>
             </v-col>
+            <v-col class="flex-shrink-1 flex-grow-0">
+                <LjSettings :connection-status="connectionStatus"/>
+            </v-col>
         </v-row>
     </v-app-bar>
 </template>
 <script>
+    import LjSettings from "@/components/include/LjSettings.vue";
+    
     export default {
         name: 'LjAppBar',
+        components: {LjSettings},
         data: () => ({
             username: undefined,
             curDb: undefined,
@@ -45,6 +51,7 @@
         props: {
             value: {},
             dbs: {},
+            connectionStatus: {},
         },
         methods: {
             logout() {

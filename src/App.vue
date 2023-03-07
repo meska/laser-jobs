@@ -39,13 +39,17 @@
             reloadSnack:undefined
         }),
         created() {
+            /*
             if (this.versiontimer === undefined) {
                 this.versiontimer = setInterval(this.checkVersion, 600 * 1000);
             }
             setTimeout(this.checkVersion, 1000)
+            */
         },
         destroyed() {
+            /*
             clearInterval(this.versiontimer)
+            */
         },
         methods: {
             aggiorna() {

@@ -1,9 +1,6 @@
 FROM node:18 as build-stage
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-ARG APP_DB_URL
-ENV VUE_APP_DB_URL=$APP_DB_URL
-
 WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
