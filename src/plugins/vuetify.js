@@ -3,6 +3,9 @@ import Vuetify from 'vuetify/lib/framework';
 import VuetifyToast from 'vuetify-toast-snackbar-ng';
 import it from 'vuetify/es5/locale/it';
 import en from 'vuetify/es5/locale/en';
+import '@mdi/font/css/materialdesignicons.css'
+import '@/assets/roboto.css'
+
 
 Vue.use(Vuetify, {
     components: {
@@ -18,6 +21,7 @@ export default new Vuetify(
             locales: {it, en},
             current: 'it',
         }, icons: {
+            defaultSet: 'mdi',
             iconfont: 'mdi', // default - only for display purposes
         },
     });

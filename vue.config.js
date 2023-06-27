@@ -12,9 +12,8 @@ module.exports = defineConfig({
     configureWebpack: {
         plugins: [
             new webpack.DefinePlugin({
-                'process.env': {
-                    VUE_APP_PACKAGE_VERSION: '"' + version + '"'
-                }
+                'process.env.VUE_APP_PACKAGE_VERSION': '"' + version + '"',
+                'process.env.VUE_APP_WORK_URL': '"' + process.env.VUE_APP_WORK_URL + '"',
             }),
         ]
     },

@@ -6,28 +6,23 @@
         <v-dialog v-model="settingsPopUp" width="60vw">
             <v-card>
                 <v-card-title>
-                    Impostazioni LaserJobs
+                    Accesso
                 </v-card-title>
                 <v-card-text>
                     <v-text-field
-                        v-model="dbSettings.serverUrl"
-                        label="Server Url"
-                        outlined
-                    ></v-text-field>
-                    <v-text-field
                         v-model="dbSettings.serverLogin"
-                        label="Server Login"
+                        label="Login"
                         outlined
                     ></v-text-field>
                     <v-text-field
                         v-model="dbSettings.serverPassword"
-                        label="Server Password"
+                        label="Password"
                         outlined
                     ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn @click="settingsPopUp = false" color="blue">Cancel</v-btn>
+                    <v-btn @click="settingsPopUp = false" color="blue">Annulla</v-btn>
                     <v-btn @click="save()" color="green">Salva</v-btn>
                 </v-card-actions>
             
@@ -48,9 +43,8 @@
             return {
                 settingsPopUp: false,
                 dbSettings: {
-                    serverUrl: 'http://localhost:5984',
-                    serverLogin: 'couchdb',
-                    serverPassword: 'couchdb'
+                    serverLogin: '',
+                    serverPassword: ''
                 },
             }
         },

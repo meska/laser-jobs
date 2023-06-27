@@ -79,7 +79,7 @@ export let commonMixin = {
             let app = this;
             app.loading = true;
             try {
-                let urlparts = app.dbSettings.serverUrl.split('//')
+                let urlparts = app.$dbUrl.split('//')
                 let url = urlparts[0] + '//' + `${app.dbSettings.serverLogin}` + ':' + app.dbSettings.serverPassword + '@' + urlparts[1]
 
 
@@ -95,13 +95,15 @@ export let commonMixin = {
                 //localStorage.setItem('defaultDb', app.$route.params.db)
 
                 this.dblist = new PouchDB('dblist');
-                this.dblist.put({'_id': app.$route.params.db, 'url': app.dbSettings.serverUrl})
+                this.dblist.put({'_id': app.$route.params.db, 'url': app.$dbUrl})
                 this.dblist.sync(`${url}dblist`, {live: true, retry: true}).on('denied', function (err) {
                     if ((err) && ((err.status === 401) || (err.status === 403))) {
                         app.connectionStatus = false;
                     }
                 }).on('error', function (err) {
                     if ((err) && ((err.status === 401) || (err.status === 403))) {
+                        // login non valido
+                        this.$store.dispatch('loginPopup', true);
                         app.connectionStatus = false;
                     }
                 });
@@ -117,7 +119,7 @@ export let commonMixin = {
                 });
                 if (app.$route.params.db) {
                     this.db = new PouchDB(app.$route.params.db);
-                    this.sync = PouchDB.sync(app.$route.params.db, `${url}laserjobs_${app.$route.params.db}`, {
+                    this.sync = PouchDB.sync(app.$route.params.db, `${url}${app.$route.params.db}`, {
                         live: true,
                         retry: true
                     }).on('denied', function (err) {
