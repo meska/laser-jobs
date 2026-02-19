@@ -1,6 +1,6 @@
 {
   "name": "laserjobs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -13,8 +13,8 @@
     "lodash": "^4.17.21",
     "moment-duration-format": "^2.3.2",
     "momentjs": "^2.0.0",
-    "pouchdb": "^8.0.0",
     "pinia": "^2.0.33",
+    "pouchdb": "^8.0.0",
     "sortablejs": "^1.15.0",
     "vlf": "^1.1.0",
     "vue": "^2.6.14",
