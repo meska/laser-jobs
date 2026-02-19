@@ -1,0 +1,32 @@
+services:
+  couchdb:
+    image: couchdb:3.5.1
+    container_name: laserjobs-db
+    restart: unless-stopped
+    environment:
+      COUCHDB_USER: couchdb
+      COUCHDB_PASSWORD: "1206b83e8b5f0c1f47e55a3e601c25b8c3a364aa55600159d63aedae49c82e34"
+    volumes:
+      - couchdb-data:/opt/couchdb/data
+
+  app:
+    image: laserjobs:latest
+    container_name: laserjobs-frontend
+    restart: unless-stopped
+    depends_on:
+      - couchdb
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: laserjobs-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+      - couchdb
+    ports:
+      - "8123:80"
+    volumes:
+      - ./nginx/prod-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  couchdb-data:

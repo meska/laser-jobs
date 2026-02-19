@@ -26,13 +26,6 @@
     </v-app>
 </template>
 
-<script setup>
-import { useAuthStore } from '@/stores/auth'
-
-// access the `store` variable anywhere in the component ✨
-const auth = useAuthStore()
-</script>
-
 <script>
     
     
@@ -52,8 +45,6 @@ const auth = useAuthStore()
             }
             setTimeout(this.checkVersion, 1000)
             */
-            debugger
-            auth.checkVersion()
         },
         destroyed() {
             /*

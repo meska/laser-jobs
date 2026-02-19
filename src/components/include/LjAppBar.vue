@@ -9,6 +9,7 @@
                 <h1 class="text-h5 mb-0">LaserJobs - {{ this.$route.params.db }}</h1>
             </div>
             <v-spacer></v-spacer>
+            <span class="caption mr-3" v-if="username">{{ username }}</span>
             <span class="caption">Ver. {{ $AppVersion }}</span>
             <v-spacer></v-spacer>
             <v-btn icon @click="logout()" v-if="username">
@@ -31,40 +32,46 @@
                     </template>
                 </v-autocomplete>
             </v-col>
-            <v-col class="flex-shrink-1 flex-grow-0">
-                <LjSettings :connection-status="connectionStatus"/>
-            </v-col>
         </v-row>
     </v-app-bar>
 </template>
 <script>
-    import LjSettings from "@/components/include/LjSettings.vue";
-    
-    export default {
-        name: 'LjAppBar',
-        components: {LjSettings},
-        data: () => ({
-            username: undefined,
-            curDb: undefined,
-            dbSearch: undefined,
-        }),
-        props: {
-            value: {},
-            dbs: {},
-            connectionStatus: {},
-        },
-        methods: {
-            logout() {
-                this.$store.dispatch('logout');
-            },
-            changeDb() {
-                this.$router.push(`/${this.curDb}/edit`);
-                window.location.reload();
-            },
-            newDb(dbSearch) {
-                this.$router.push(`/${dbSearch}/edit`);
-                window.location.reload();
+import { clearDbSettings, clearSessionCookie, getSessionCookie } from '@/utils/auth'
+
+export default {
+    name: 'LjAppBar',
+    data: () => ({
+        username: undefined,
+        curDb: undefined,
+        dbSearch: undefined,
+    }),
+    props: {
+        value: {},
+        dbs: {},
+        connectionStatus: {},
+    },
+    mounted() {
+        const session = getSessionCookie()
+        this.username = session ? session.utente : undefined
+    },
+    methods: {
+        async logout() {
+            const confirmed = window.confirm('Confermi logout?')
+            if (!confirmed) {
+                return
             }
+            clearSessionCookie()
+            await clearDbSettings()
+            window.location.href = '/login'
         },
-    }
+        changeDb() {
+            this.$router.push(`/${this.curDb}/edit`)
+            window.location.reload()
+        },
+        newDb(dbSearch) {
+            this.$router.push(`/${dbSearch}/edit`)
+            window.location.reload()
+        },
+    },
+}
 </script>

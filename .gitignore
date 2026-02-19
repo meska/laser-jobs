@@ -21,3 +21,11 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+laserjobs-*.tar.gz
