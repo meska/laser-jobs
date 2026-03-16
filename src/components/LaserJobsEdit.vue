@@ -1,6 +1,45 @@
 <template>
     <div>
        <lj-app-bar :dbs="dbs" :connection-status="connectionStatus"/>
+        <v-card
+            v-if="currentJob"
+            class="in-corso-card"
+            outlined
+        >
+            <v-card-title class="in-corso-title text-h5">
+                Lavorazione in corso
+            </v-card-title>
+            <v-card-text class="in-corso-content">
+                <v-row align="center">
+                    <v-col cols="12" md="1" class="text-center">
+                        <v-icon
+                            x-large
+                            :color="currentJob.doc.color && currentJob.doc.color.hexa"
+                        >
+                            mdi-checkbox-blank-circle
+                        </v-icon>
+                    </v-col>
+                    <v-col cols="12" md="2" class="text-h4 font-weight-bold">
+                        {{ currentJob.doc.data_consegna | moment('L') }}
+                    </v-col>
+                    <v-col cols="12" md="3" class="text-h3 font-weight-bold">
+                        {{ currentJob.doc.codice }}
+                    </v-col>
+                    <v-col cols="12" md="4" class="text-h4 font-weight-medium">
+                        {{ currentJob.doc.descrizione }}
+                    </v-col>
+                    <v-col cols="12" md="2" class="d-flex justify-end">
+                        <v-checkbox
+                            v-model="currentJob.doc.in_corso"
+                            class="mt-0 pt-0 in-corso-checkbox"
+                            hide-details
+                            label="In corso"
+                            @change="toggleInCorso(currentJob)"
+                        ></v-checkbox>
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card>
         <v-data-iterator
             :items="jobsTodo"
             :items-per-page="50"
@@ -80,6 +119,9 @@
                                 <bt-sort v-model="sort" label="Consegna" field="doc.data_consegna"/>
                             </th>
                             <th scope="col">
+                                <bt-sort v-model="sort" label="In corso" field="doc.in_corso"/>
+                            </th>
+                            <th scope="col">
                                 <bt-sort v-model="sort" label="Fatto" field="doc.done"/>
                             </th>
                             <th scope="col">
@@ -93,7 +135,7 @@
                         </thead>
                         <tbody id="jobsTable">
                         <tr v-for="item in props.items" v-bind:key="item.id" :data-id="item.id"
-                            :class="[item.doc.done ? 'cFatto' : item.doc.sospeso ? 'cSospeso' :'']">
+                            :class="rowClasses(item)">
                             <td class="sort-handle text-center" style="width: 1%">
                                 <v-icon>mdi-drag</v-icon>
                             </td>
@@ -176,6 +218,22 @@
                                     </v-date-picker>
                                 </v-menu>
                             
+                            </td>
+                            <td style="width: 1%">
+                                <v-row dense class='d-flex justify-center'>
+                                    <v-checkbox
+                                        tabindex="-1"
+                                        v-model="item.doc.in_corso"
+                                        dense
+                                        flat
+                                        hide-details
+                                        outlined
+                                        placeholder="In corso"
+                                        single-line
+                                        type="text"
+                                        @change="toggleInCorso(item)"
+                                    ></v-checkbox>
+                                </v-row>
                             </td>
                             <td style="width: 1%">
                                 <v-row dense class='d-flex justify-center'>
@@ -280,6 +338,9 @@
             }
         },
         computed: {
+            currentJob() {
+                return this.getInCorsoJobs()[0] || null
+            },
             jobsTodo() {
                 if (this.filteredJobs) {
                     if (this.showDeleted) {
@@ -304,6 +365,30 @@
             window.removeEventListener("keydown", this.shortcuts);
         },
         methods: {
+            rowClasses(item) {
+                return {
+                    cFatto: item.doc.done,
+                    cSospeso: !item.doc.done && item.doc.sospeso,
+                    cInCorso: item.doc.in_corso,
+                }
+            },
+            async toggleInCorso(item) {
+                item.doc.date = new Date()
+                const docsToSave = [item.doc]
+
+                if (item.doc.in_corso) {
+                    (this.jobs || [])
+                        .filter((job) => job.id !== item.id && job.doc.in_corso)
+                        .forEach((job) => {
+                            job.doc.in_corso = false
+                            job.doc.date = new Date()
+                            docsToSave.push(job.doc)
+                        })
+                }
+
+                await Promise.all(docsToSave.map((doc) => this.db.put(doc)))
+                await this.enforceSingleInCorso(item.doc.in_corso ? item.id : null)
+            },
             shortcuts(e) {
                 if (e.ctrlKey && e.keyCode === 65 && !this.loginPopUp) {
                     e.preventDefault();
@@ -335,6 +420,7 @@
                 return this.db.post({
                     codice: "",
                     descrizione: "",
+                    in_corso: false,
                     ordinamento: 500,
                     date: new Date(),
                 }).then((job) => {
@@ -375,7 +461,7 @@
                 this.$refs.excelImport.click();
             },
             exportJobsExcel() {
-                const headers = ['codice', 'descrizione', 'data_consegna', 'done', 'sospeso', 'ordinamento', 'color_hexa'];
+                const headers = ['codice', 'descrizione', 'data_consegna', 'done', 'in_corso', 'sospeso', 'ordinamento', 'color_hexa'];
                 const activeJobs = (this.jobs || [])
                     .filter((job) => !job.doc.deleted)
                     .sort((a, b) => (a.doc.ordinamento || 0) - (b.doc.ordinamento || 0));
@@ -386,6 +472,7 @@
                         this.toCsvValue(job.doc.descrizione),
                         this.toCsvValue(job.doc.data_consegna),
                         this.toCsvValue(job.doc.done ? 1 : 0),
+                        this.toCsvValue(job.doc.in_corso ? 1 : 0),
                         this.toCsvValue(job.doc.sospeso ? 1 : 0),
                         this.toCsvValue(job.doc.ordinamento),
                         this.toCsvValue(job.doc.color && job.doc.color.hexa ? job.doc.color.hexa : ''),
@@ -429,7 +516,7 @@
                         }
 
                         const header = rows[0].map((h) => String(h || '').trim().toLowerCase());
-                        const expected = ['codice', 'descrizione', 'data_consegna', 'done', 'sospeso', 'ordinamento', 'color_hexa'];
+                        const expected = ['codice', 'descrizione', 'data_consegna', 'done', 'in_corso', 'sospeso', 'ordinamento', 'color_hexa'];
                         if (header.join('|') !== expected.join('|')) {
                             window.alert('Formato file non valido. Usa un file esportato da LaserJobs.');
                             return;
@@ -443,14 +530,15 @@
                         const docs = rows.slice(1)
                             .filter((row) => row.some((c) => String(c || '').trim() !== ''))
                             .map((row, index) => {
-                                const colorHexa = String(row[6] || '').trim();
+                                const colorHexa = String(row[7] || '').trim();
                                 return {
                                     codice: String(row[0] || '').trim(),
                                     descrizione: String(row[1] || '').trim(),
                                     data_consegna: String(row[2] || '').trim(),
                                     done: this.toBoolean(row[3]),
-                                    sospeso: this.toBoolean(row[4]),
-                                    ordinamento: this.toNumber(row[5], 500 + index),
+                                    in_corso: this.toBoolean(row[4]),
+                                    sospeso: this.toBoolean(row[5]),
+                                    ordinamento: this.toNumber(row[6], 500 + index),
                                     date: new Date(),
                                     deleted: false,
                                     color: colorHexa ? {hexa: colorHexa} : undefined,
@@ -528,6 +616,31 @@
 </script>
 
 <style scoped>
+.in-corso-card {
+    margin-bottom: 24px;
+    border: 3px solid #ef6c00 !important;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe0b2 100%);
+    box-shadow: 0 18px 40px rgba(239, 108, 0, 0.18);
+}
+
+.in-corso-title {
+    background: rgba(239, 108, 0, 0.12);
+    color: #bf360c;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.in-corso-content {
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
+}
+
+.in-corso-checkbox {
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 12px;
+    padding: 8px 12px;
+}
 
 ::v-deep .theme--light.v-sheet {
     background-color: unset !important;
@@ -545,5 +658,9 @@
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
+}
+
+.cInCorso {
+    background: #fff8e1;
 }
 </style>

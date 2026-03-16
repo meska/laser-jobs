@@ -62,6 +62,39 @@ export let commonMixin = {
         },
     },
     methods: {
+        getInCorsoJobs() {
+            return (this.jobs || []).filter((job) => job && job.doc && job.doc.in_corso)
+        },
+        async enforceSingleInCorso(preferredId = null) {
+            const inCorsoJobs = this.getInCorsoJobs()
+            if (inCorsoJobs.length <= 1) {
+                return
+            }
+
+            let keeper = null
+            if (preferredId) {
+                keeper = inCorsoJobs.find((job) => job.id === preferredId)
+            }
+            if (!keeper) {
+                keeper = _.orderBy(
+                    inCorsoJobs,
+                    [(job) => new Date(job.doc.date || 0).getTime()],
+                    ['desc'],
+                )[0]
+            }
+
+            const docsToSave = inCorsoJobs
+                .filter((job) => job.id !== keeper.id)
+                .map((job) => {
+                    job.doc.in_corso = false
+                    job.doc.date = new Date()
+                    return job.doc
+                })
+
+            if (docsToSave.length) {
+                await Promise.all(docsToSave.map((doc) => this.db.put(doc)))
+            }
+        },
         async logout() {
             clearSessionCookie()
             await clearDbSettings()
@@ -124,6 +157,7 @@ export let commonMixin = {
                         app.jobs = doc.rows
                         app.loading = false
                         app.connectionStatus = true
+                        app.enforceSingleInCorso()
                         app.enableSync()
                     }
                 })
