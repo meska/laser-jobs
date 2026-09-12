@@ -10,6 +10,7 @@ PROD_SETUP_SCRIPT ?= setup.sh
 COUCHDB_URL ?= http://localhost:5984
 COUCHDB_ADMIN_USER ?= couchdb
 COUCHDB_ADMIN_PASSWORD ?= 1206b83e8b5f0c1f47e55a3e601c25b8c3a364aa55600159d63aedae49c82e34
+SENTRY_DSN ?=
 USERS_DB ?= laserjobs_users
 USERS_DB_MEMBER_ROLE ?= laserjobs_user
 AZIENDA_ROLE_PREFIX ?= laserjobs_company
@@ -17,7 +18,7 @@ PASSWORD_ITERATIONS ?= 120000
 
 .DEFAULT_GOAL := help
 
-.PHONY: help version start build build-linux-x86 package-linux-x86 upload-prod deploy-prod create-user list-users update-user-password
+.PHONY: help version start require-sentry-dsn build build-linux-x86 package-linux-x86 upload-prod deploy-prod create-user list-users update-user-password
 
 help: ## Mostra questo help
 	@echo "Comandi disponibili:"
@@ -31,11 +32,14 @@ start: ## Avvia db e frontend in container docker
 	@docker run -p 5984:5984 --name laserjobs-db --restart=always -v laserjobs-data:/opt/couchdb/data -e COUCHDB_USER=couchdb -e COUCHDB_PASSWORD=1206b83e8b5f0c1f47e55a3e601c25b8c3a364aa55600159d63aedae49c82e34 -d couchdb:latest ; \
 	docker run -p 8123:80 --name laserjobs-frontend --restart=always -d dr.meskatech.com/laserjobs:latest
 
-build: ## Build e push immagine production
-	@docker buildx build --push --platform linux/amd64 -t dr.meskatech.com/laserjobs:latest .
+require-sentry-dsn:
+	@{ test -n "$(SENTRY_DSN)" || { echo "SENTRY_DSN mancante" >&2; exit 1; }; }
 
-build-linux-x86: ## Build immagine locale linux/amd64
-	@docker buildx build --platform $(PLATFORM) --load -t $(IMAGE_NAME):$(IMAGE_TAG) .
+build: require-sentry-dsn ## Build e push immagine production
+	@docker buildx build --push --platform linux/amd64 --build-arg APP_SENTRY_DSN="$(SENTRY_DSN)" -t dr.meskatech.com/laserjobs:latest .
+
+build-linux-x86: require-sentry-dsn ## Build immagine locale linux/amd64
+	@docker buildx build --platform $(PLATFORM) --load --build-arg APP_SENTRY_DSN="$(SENTRY_DSN)" -t $(IMAGE_NAME):$(IMAGE_TAG) .
 
 package-linux-x86: build-linux-x86 ## Salva immagine locale in archivio tar.gz
 	@docker save $(IMAGE_NAME):$(IMAGE_TAG) | gzip > $(ARCHIVE_NAME)

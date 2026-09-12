@@ -2,7 +2,9 @@ FROM node:24.13.1 as build-stage
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
 ARG APP_DB_URL=/db
+ARG APP_SENTRY_DSN
 ENV VUE_APP_DB_URL=$APP_DB_URL
+ENV VUE_APP_SENTRY_DSN=$APP_SENTRY_DSN
 
 WORKDIR /app
 COPY package*.json ./

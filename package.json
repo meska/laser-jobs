@@ -1,6 +1,6 @@
 {
   "name": "laserjobs",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@sentry/vue": "7.120.4",
     "core-js": "^3.8.3",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
