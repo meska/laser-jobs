@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Router from 'vue-router'
+import Router, { isNavigationFailure, NavigationFailureType } from 'vue-router'
 import { getDefaultRouteForSession, getSessionCookie } from '@/utils/auth'
 
 const Login = () => import('./components/Login')
@@ -11,6 +11,23 @@ const NotFound = () => import('./components/NotFound')
 const originalPush = Router.prototype.push
 Router.prototype.push = function push(location) {
     return originalPush.call(this, location).catch((err) => err)
+}
+
+const originalReplace = Router.prototype.replace
+Router.prototype.replace = function replace(location, onComplete, onAbort) {
+    const navigation = originalReplace.call(this, location, onComplete, onAbort)
+
+    // Un redirect del guard xe previsto: no lassarlo come Promise rejection.
+    if (!navigation || typeof navigation.catch !== 'function') {
+        return navigation
+    }
+
+    return navigation.catch((error) => {
+        if (isNavigationFailure(error, NavigationFailureType.redirected)) {
+            return error
+        }
+        throw error
+    })
 }
 
 Vue.use(Router)
