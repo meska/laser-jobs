@@ -1,0 +1,59 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "enabledManagers": [
+    "dockerfile",
+    "docker-compose"
+  ],
+  "ignorePaths": [
+    ".agents/**",
+    "**/node_modules/**"
+  ],
+  "timezone": "Europe/Rome",
+  "schedule": [
+    "before 7am on monday"
+  ],
+  "prConcurrentLimit": 3,
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "container images",
+      "automerge": false
+    },
+    {
+      "matchPackageNames": [
+        "mariadb",
+        "mysql",
+        "postgres",
+        "redis"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "enabled": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": [
+      "security"
+    ],
+    "schedule": [
+      "at any time"
+    ]
+  },
+  "pinDigests": true
+}
