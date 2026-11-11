@@ -30,6 +30,11 @@ if (sentryDsn) {
         environment: process.env.NODE_ENV,
         release: `laserjobs@${process.env.VUE_APP_PACKAGE_VERSION}`,
         logErrors: true,
+        // Bug noto di PouchDB 8.0.0 (listener 'storage' con this=window, corretto in 9.0.0): innocuo.
+        beforeSend(event) {
+            const ex = event.exception && event.exception.values && event.exception.values[0]
+            return ex && ex.type === 'TypeError' && ex.value === 'this.emit is not a function' ? null : event
+        },
     })
 }
 
