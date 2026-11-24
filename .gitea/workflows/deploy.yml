@@ -1,0 +1,37 @@
+name: build-deploy
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+concurrency:
+  group: laserjobs-deploy
+  cancel-in-progress: false
+
+env:
+  HARBOR_LAN: 192.168.11.134:8080
+  IMAGE: meska/laserjobs
+
+jobs:
+  build-deploy:
+    runs-on: laserjobs-build
+    steps:
+      - name: Checkout
+        run: |
+          git init -q .
+          git -c http.extraHeader="Authorization: token ${{ gitea.token }}" fetch -q --depth=1 "${{ gitea.server_url }}/${{ gitea.repository }}.git" "${{ gitea.sha }}"
+          git checkout -q FETCH_HEAD
+      - name: Build
+        run: |
+          docker build --build-arg APP_SENTRY_DSN="${{ secrets.SENTRY_DSN }}" -t "$HARBOR_LAN/$IMAGE:${{ gitea.sha }}" .
+      - name: Push su Harbor
+        run: |
+          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login "$HARBOR_LAN" -u "${{ secrets.HARBOR_USER }}" --password-stdin
+          docker push -q "$HARBOR_LAN/$IMAGE:${{ gitea.sha }}"
+          docker logout "$HARBOR_LAN"
+      - name: Deploy (pull da Harbor sul server, rollback se la verifica fallisce)
+        run: ssh -i ~/.ssh/laserjobs_ci -o BatchMode=yes root@192.168.11.149 "deploy ${{ gitea.sha }}"
+      - name: Pulizia
+        if: always()
+        run: docker rmi "$HARBOR_LAN/$IMAGE:${{ gitea.sha }}" >/dev/null 2>&1 || true
