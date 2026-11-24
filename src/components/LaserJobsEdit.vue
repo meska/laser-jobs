@@ -196,7 +196,8 @@
                                         ></v-text-field>
                                     </template>
                                     <v-date-picker
-                                        v-model="item.doc.data_consegna"
+                                        :value="pickerDate(item.doc.data_consegna)"
+                                        @input="item.doc.data_consegna = $event"
                                         no-title
                                         scrollable
                                     >
@@ -365,6 +366,10 @@
             window.removeEventListener("keydown", this.shortcuts);
         },
         methods: {
+            // il date-picker lancia RangeError con testo parziale digitato a mano: gli passiamo solo YYYY-MM-DD validi
+            pickerDate(v) {
+                return /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(new Date(v)) ? v : null
+            },
             rowClasses(item) {
                 return {
                     cFatto: item.doc.done,
