@@ -26,8 +26,12 @@ jobs:
         run: |
           docker build --build-arg APP_SENTRY_DSN="${{ secrets.SENTRY_DSN }}" -t "$HARBOR_LAN/$IMAGE:${{ gitea.sha }}" .
       - name: Push su Harbor
+        # Via env: lo username del robot contiene "$" e la shell lo espanderebbe.
+        env:
+          HARBOR_USER: ${{ secrets.HARBOR_USER }}
+          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
         run: |
-          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login "$HARBOR_LAN" -u "${{ secrets.HARBOR_USER }}" --password-stdin
+          echo "$HARBOR_PASSWORD" | docker login "$HARBOR_LAN" -u "$HARBOR_USER" --password-stdin
           docker push -q "$HARBOR_LAN/$IMAGE:${{ gitea.sha }}"
           docker logout "$HARBOR_LAN"
       - name: Deploy (pull da Harbor sul server, rollback se la verifica fallisce)
