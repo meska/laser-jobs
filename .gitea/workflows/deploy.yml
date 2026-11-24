@@ -14,6 +14,18 @@ env:
   IMAGE: meska/laserjobs
 
 jobs:
+  mirror:
+    # GitHub e' solo uno specchio: push con deploy key limitata a questo repo.
+    runs-on: laserjobs-build
+    steps:
+      - name: Push su GitHub
+        env:
+          MIRROR_SSH_KEY: ${{ secrets.MIRROR_SSH_KEY }}
+        run: |
+          K=$(mktemp); trap 'rm -f "$K"' EXIT; printf '%s\n' "$MIRROR_SSH_KEY" > "$K"; chmod 600 "$K"
+          git init -q . && git -c http.extraHeader="Authorization: token ${{ gitea.token }}" fetch -q "${{ gitea.server_url }}/${{ gitea.repository }}.git" "+refs/heads/main:refs/heads/main" "+refs/tags/*:refs/tags/*"
+          GIT_SSH_COMMAND="ssh -i $K -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" git push git@github.com:meska/laser-jobs.git refs/heads/main:refs/heads/main "refs/tags/*:refs/tags/*"
+
   build-deploy:
     runs-on: laserjobs-build
     steps:
